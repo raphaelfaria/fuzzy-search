@@ -67,11 +67,36 @@ window.onload = (function () {
         name: string,
         pos: index,
         nameObj: nameObj,
-        matchPos: matchPos
+        matchPos: matchPos,
+        totalWeight: 0
       }
       if(giveUp === false)
         matches.push(matchedObj);
       // matchPos.length === query.length ? matches.push(matchedObj) : false;
+    });
+
+    return calculateRank(matches);
+  }
+
+  function calculateRank(matches) {
+
+    matches.forEach(function(match) {
+      var substringSize = 0;
+      match.matchPos.forEach(function(elem, index) {
+        if(match.nameObj[elem].beginSection === true) {
+          match.nameObj[elem].weight = (80 - elem);
+          match.totalWeight += match.nameObj[elem].weight;
+        }
+        if(match.matchPos[index - 1] == elem - 1) {
+          substringSize++;
+          match.nameObj[elem].weight = 20 * Math.pow(2, substringSize) - elem;
+          match.totalWeight += match.nameObj[elem].weight;
+        }
+        else {
+          match.nameObj[elem].weight = 10 - elem;
+          match.totalWeight += match.nameObj[elem].weight;
+        }
+      });
     });
 
     return matches;
@@ -95,7 +120,7 @@ window.onload = (function () {
     return nameObj;
   }
 
-  console.log(findPatterns('jasi', ['JavaScriptInfo']));
+  console.log(findPatterns('jsc', ['jscrpe', 'JavaScriptCppRuby']));
 
   // sectionStartArray = sectionStart(name),
 
