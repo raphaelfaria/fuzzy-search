@@ -1,6 +1,3 @@
-// ideia = guardar pesos em uma array, por posição da entrada
-
-
 window.onload = (function () {
 
   function findPatterns(pattern, name) {
