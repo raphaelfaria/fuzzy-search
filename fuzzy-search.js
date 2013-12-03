@@ -1,3 +1,5 @@
+var fuzzySeach = {}
+
 window.onload = (function () {
 
   function findPatterns(pattern, name) {
@@ -15,7 +17,7 @@ window.onload = (function () {
           giveUp        = false;
 
       while(query.length > 0) {
-        if(priorityMatch === false && giveUpUpper === false) {
+        if(!priorityMatch && !giveUpUpper) {
           //find uppercase matches (later, look for possible section starters)
           while(stringIndex < nameObj.length) {
             if(nameObj[stringIndex].c.toLowerCase() === query[queryIndex].toLowerCase() && nameObj[stringIndex].beginSection) {
@@ -26,7 +28,7 @@ window.onload = (function () {
             } else stringIndex++;
           }
 
-          if (priorityMatch === false) {
+          if (!priorityMatch) {
             giveUpUpper = true;
             stringIndex = 0;
           }
@@ -36,7 +38,7 @@ window.onload = (function () {
           }
         }
 
-        if(giveUpUpper === true) {
+        if(giveUpUpper) {
           while(stringIndex < nameObj.length) {
             if(nameObj[stringIndex].c.toLowerCase() === query[queryIndex].toLowerCase()) {
               matchPos.push(stringIndex);
@@ -47,7 +49,7 @@ window.onload = (function () {
             } else stringIndex++;
           }
 
-          if(otherMatch === false) {
+          if(!otherMatch) {
             giveUp = true;
           }
           else {
@@ -56,7 +58,7 @@ window.onload = (function () {
           }
         }
 
-        if(giveUp === true)
+        if(giveUp)
           break;
       }
 
@@ -69,7 +71,6 @@ window.onload = (function () {
       }
       if(giveUp === false)
         matches.push(matchedObj);
-      // matchPos.length === query.length ? matches.push(matchedObj) : false;
     });
 
     return calculateRank(matches);
@@ -83,10 +84,16 @@ window.onload = (function () {
         if(match.nameObj[elem].beginSection === true) {
           match.nameObj[elem].weight = (80 - elem);
           match.totalWeight += match.nameObj[elem].weight;
+
+          if(match.matchPos[index - 1] == elem - 1) {
+            substringSize++;
+            match.nameObj[elem].weight += 15 * Math.pow(2, substringSize) - elem;
+            match.totalWeight += match.nameObj[elem].weight;
+          }
         }
-        if(match.matchPos[index - 1] == elem - 1) {
+        else if(match.matchPos[index - 1] == elem - 1) {
           substringSize++;
-          match.nameObj[elem].weight = 20 * Math.pow(2, substringSize) - elem;
+          match.nameObj[elem].weight = 15 * Math.pow(2, substringSize) - elem;
           match.totalWeight += match.nameObj[elem].weight;
         }
         else {
@@ -97,6 +104,14 @@ window.onload = (function () {
     });
 
     return matches;
+  }
+
+  function compareRank(a, b) {
+    if (a.totalWeight > b.totalWeight)
+      return -1;
+    if (a.totalWeight < b.totalWeight)
+      return 1;
+    return 0;
   }
 
   function isUpper(ch) {
@@ -117,8 +132,29 @@ window.onload = (function () {
     return nameObj;
   }
 
-  console.log(findPatterns('jsc', ['jscrpe', 'JavaScriptCppRuby']));
 
-  // sectionStartArray = sectionStart(name),
+  var entry = ['aaaaJaScript',
+               'bjs',
+               'blAbja',
+               'blabjs',
+               'blajs',
+               'jaaspio',
+               'japison',
+               'JaScript',
+               'jAjscrpn',
+               'JavaScript',
+               'JavaScriptCppRuby',
+               'JavaScriptInfo',
+               'jsapion',
+               'jscrpe',
+               'JscrScriptCppRuby',
+               'json',
+               'JString',
+               'jStrong',
+               'majesty',
+               'raphaeljs']
+
+  var result = findPatterns('jscrp', entry).sort(compareRank);;
+  console.log(result);
 
 });
