@@ -14,7 +14,6 @@ window.fuzzySearch = {
 
       while(query.length > 0) {
         if(priorityMatch) {
-          //find uppercase matches (later, look for possible section starters)
           lastSearch = lookUpper(stringIndex, nameObj, query[queryIndex]);
 
           if(lastSearch === -1) {
@@ -132,7 +131,7 @@ window.fuzzySearch = {
   },
 
   isUpper: function(ch) {
-    return ch.toUpperCase() === ch;
+    return (ch.toUpperCase() === ch) || (/\W^\s/).exec(ch);
   },
 
   makeNameObj: function(name) {
