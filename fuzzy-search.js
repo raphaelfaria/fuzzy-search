@@ -1,8 +1,5 @@
-var fuzzySeach = {}
-
-window.onload = (function () {
-
-  function findPatterns(pattern, name) {
+window.fuzzySearch = {
+  findPatterns: function(pattern, name) {
     var matches = [];
 
     name.forEach(function(string, index) {
@@ -10,7 +7,7 @@ window.onload = (function () {
           query         = pattern.replace(/\s+/g, '').split(''),
           queryIndex    = 0,
           matchPos      = [],
-          nameObj       = makeNameObj(string),
+          nameObj       = fuzzySearch.makeNameObj(string),
           priorityMatch = false,
           otherMatch    = false,
           giveUpUpper   = false,
@@ -30,7 +27,7 @@ window.onload = (function () {
 
           if (!priorityMatch) {
             giveUpUpper = true;
-            stringIndex = 0;
+            stringIndex = matchPos[matchPos.length - 1] + 1; //gets index of last element added to list of matches
           }
           else {
             stringIndex = matchPos[matchPos.length - 1] + 1; //gets index of last element added to list of matches
@@ -73,10 +70,28 @@ window.onload = (function () {
         matches.push(matchedObj);
     });
 
-    return calculateRank(matches);
-  }
+    function lookUpper(index, nameObject, queryItem) {
+      while(index < nameObject.length) {
+        if(nameObject[index].c.toLowerCase() === queryItem.toLowerCase() && nameObject[index].beginSection) {
+          return index;
+        }
+      }
+      return -1;
+    }
 
-  function calculateRank(matches) {
+    function lookAny(index, nameObject, queryItem) {
+      while(index < nameObject.length) {
+        if(nameObject[index].c.toLowerCase() === queryItem.toLowerCase()) {
+          return index;
+        }
+      }
+      return -1;
+    }
+
+    return fuzzySearch.calculateRank(matches).sort(fuzzySearch.compareRank);
+  },
+
+  calculateRank: function(matches) {
 
     matches.forEach(function(match) {
       var substringSize = 0;
@@ -104,57 +119,31 @@ window.onload = (function () {
     });
 
     return matches;
-  }
+  },
 
-  function compareRank(a, b) {
+  compareRank: function(a, b) {
     if (a.totalWeight > b.totalWeight)
       return -1;
     if (a.totalWeight < b.totalWeight)
       return 1;
     return 0;
-  }
+  },
 
-  function isUpper(ch) {
+  isUpper: function(ch) {
     return ch.toUpperCase() === ch;
-  }
+  },
 
-  function makeNameObj(name) {
+  makeNameObj: function(name) {
     var nameObj = [];
 
     for(var i = 0; i < name.length; i++) {
       var n = {
                 c: name[i],
-                beginSection: i === 0 || (isUpper(name[i]) && !isUpper(name[i - 1])) ? true : false,
+                beginSection: i === 0 || (fuzzySearch.isUpper(name[i]) && !fuzzySearch.isUpper(name[i - 1])) ? true : false,
                 weight: 0
               }
       nameObj.push(n);
     }
     return nameObj;
-  }
-
-
-  var entry = ['aaaaJaScript',
-               'bjs',
-               'blAbja',
-               'blabjs',
-               'blajs',
-               'jaaspio',
-               'japison',
-               'JaScript',
-               'jAjscrpn',
-               'JavaScript',
-               'JavaScriptCppRuby',
-               'JavaScriptInfo',
-               'jsapion',
-               'jscrpe',
-               'JscrScriptCppRuby',
-               'json',
-               'JString',
-               'jStrong',
-               'majesty',
-               'raphaeljs']
-
-  var result = findPatterns('jscrp', entry).sort(compareRank);;
-  console.log(result);
-
-});
+  },
+}
