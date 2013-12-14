@@ -18,8 +18,7 @@ window.fuzzySearch = {
           lastSearch = lookUpper(stringIndex, nameObj, query[queryIndex]);
 
           if(lastSearch === -1) {
-            stringIndex++;
-            lastSearch = lookAny(stringIndex, nameObj, query[queryIndex]);
+            lastSearch = lookAny(stringIndex + 1, nameObj, query[queryIndex]);
             if(lastSearch === -1) {
               priorityMatch = false;
               query         = pattern.replace(/\s+/g, '').split('');
@@ -41,7 +40,7 @@ window.fuzzySearch = {
         }
 
         else {
-          lastSearch = lookAny(stringIndex, nameObj, query[queryIndex]);
+          lastSearch = lookAny(stringIndex + 1, nameObj, query[queryIndex]);
           if(lastSearch === -1) {
             giveUp = true;
             break;
@@ -113,6 +112,8 @@ window.fuzzySearch = {
           match.nameObj[elem].weight = 10 - elem;
           match.totalWeight += match.nameObj[elem].weight;
         }
+
+        match.totalWeight -= ((match.name.length - 1) - match.matchPos[match.matchPos.length - 1]);
       });
     });
 
