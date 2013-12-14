@@ -36,6 +36,7 @@ window.fuzzySearch = {
             stringIndex = lastSearch;
             matchPos.push(stringIndex);
             query.splice(queryIndex,1);
+            stringIndex++;
           }
         }
 
